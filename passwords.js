@@ -1,5 +1,3 @@
-// Password Database
-// Add your encoded passwords here
 const PASSWORDS_DATABASE = [
     {
         "title": "lika vless",
@@ -20,5 +18,65 @@ const PASSWORDS_DATABASE = [
     {
         "title": "bike",
         "encoded": "oZqooA=="
+    },
+    {
+        "title": "marine telegram",
+        "encoded": "5Mbf1M2ri66ojJ0="
+    },
+    {
+        "title": "wifi",
+        "encoded": "29ippbqQYqa+lQ=="
+    },
+    {
+        "title": "rami wifi",
+        "encoded": "1pe+59F9grk="
+    },
+    {
+        "title": "svrom wifi",
+        "encoded": "qJmmpZtvYnk="
+    },
+    {
+        "title": "tanja laptop",
+        "encoded": "qJispw=="
+    },
+    {
+        "title": "teleguard",
+        "encoded": "s6fAw6uNb4a6"
+    },
+    {
+        "title": "moms telegram",
+        "encoded": "28TgptaqVaPRz8Ll0ZpdpQ=="
+    },
+    {
+        "title": "e-sbyt",
+        "encoded": "o5mkp5ZrX3Ona8jCmYCYltOs"
+    },
+    {
+        "title": "olbo telegram",
+        "encoded": "4MLm3sytj63VyOXQ03Fraw=="
+    },
+    {
+        "title": "sber face",
+        "encoded": "qZSqoA=="
+    },
+    {
+        "title": "rzd bonus",
+        "encoded": "ycTm6LRxa22U19m7spuf"
+    },
+    {
+        "title": "rzd bonus mom",
+        "encoded": "s47d1tdjfZrhjtLXmLF7"
+    },
+    {
+        "title": "rzd",
+        "encoded": "4MLm3syrpKWpj7Q="
+    },
+    {
+        "title": "telegram maur",
+        "encoded": "5Mbf1M2ri66pi7Tfx6w="
+    },
+    {
+        "title": "zoom",
+        "encoded": "387N3pqAVGSkreKQ"
     }
 ];
