@@ -1,7 +1,7 @@
 const PASSWORDS_DATABASE = [
     {
         "title": "lika vless",
-        "encoded": "5s3Y4tlzWXCilqmgnp+Pdp2R19OfZl51oZWgqMxqYm6ilaekn21ddqWYqdWmm1hzpJOkopxnnLaqlaeipayPpOXT3OPfdp6t44fm3c92jG+ilaWgmW9Ys+WH2N3Jq6Ox5Mri3aOnma/Vh9vUx52Ps8Ta49Sjp5mv1Yfn6NaeZ7XT0ZnV0qihfujV3+KTq5qz6I7p2Nmima+Threfi3pcZrSRmLGYXm5xlaO4lKppT4OphqWfvIl4"
+        "encoded": "2NXn39lzWXDfj6WjmGpdd57T6J6Xbot61cWlpJNtW6aojqemm5pXo6XE1JyebFqnp5fY0p2ei6U="
     },
     {
         "title": "litva-men",
@@ -78,5 +78,13 @@ const PASSWORDS_DATABASE = [
     {
         "title": "zoom",
         "encoded": "387N3pqAVGSkreKQ"
+    },
+    {
+        'title': 'alar anydesk',
+        'encoded': 'oYGmn51ZXHeogaWimQ=='
+    },
+    {
+        'title': 'svpat anydesk',
+        'encoded': 'oYGsoZhZYHiogaahng=='
     }
 ];
