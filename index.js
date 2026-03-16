@@ -5,6 +5,9 @@ const inputText = document.getElementById('inputText');
 const outputText = document.getElementById('outputText');
 const inputCount = document.getElementById('inputCount');
 const outputCount = document.getElementById('outputCount');
+const entriesContainer = document.getElementById('entriesContainer');
+const totalEntriesEl = document.getElementById('totalEntries');
+let DATABASE = [];
 
 // Encoding/Decoding algorithm based on secret word
 function generateKey(secretWord, length) {
@@ -34,7 +37,7 @@ function encode(text, secretWord) {
 }
 
 function decode(encodedText, secretWord) {
-    if (!secretWord || !encodedText) return encodedText;
+    if (!secretWord || !encodedText) return '';
 
     try {
         // Decode from base64
@@ -90,8 +93,110 @@ function updateModeLabel() {
     document.querySelectorAll('.mode-label')[1].style.fontWeight = modeToggle.checked ? '600' : '400';
 }
 
+// Database-related functionality
+function copyToClipboard(text, buttonId) {
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById(buttonId);
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+    }).catch(err => console.error('Failed to copy:', err));
+}
+
+function quickCopy(index, buttonId) {
+    const secret = secretWordInput.value.trim();
+    if (!secret) {
+        alert('Please enter your secret word first!');
+        return;
+    }
+
+    const entry = DATABASE[index];
+    const result = decode(entry.encoded, secret);
+    copyToClipboard(result, buttonId);
+}
+
+function toggleDecoded(index) {
+    const decodedSection = document.getElementById(`decoded-section-${index}`);
+    const decodedContent = document.getElementById(`decoded-content-${index}`);
+    const showBtn = document.getElementById(`show-btn-${index}`);
+    const hideBtn = document.getElementById(`hide-btn-${index}`);
+    const decodedTextEl = document.getElementById(`decoded-text-${index}`);
+
+    const secret = secretWordInput.value.trim();
+    if (!secret) {
+        alert('Please enter your secret word first!');
+        return;
+    }
+
+    if (decodedContent.classList.contains('visible')) {
+        decodedContent.classList.remove('visible');
+        decodedSection.style.display = 'none';
+        showBtn.style.display = 'inline-flex';
+        hideBtn.style.display = 'none';
+    } else {
+        const entry = DATABASE[index];
+        const result = decode(entry.encoded, secret);
+        decodedTextEl.textContent = result;
+        decodedSection.style.display = 'block';
+        decodedContent.classList.add('visible');
+        showBtn.style.display = 'none';
+        hideBtn.style.display = 'inline-flex';
+    }
+}
+
+function createEntryCard(entry, index) {
+    const card = document.createElement('div');
+    card.className = 'entry-card';
+    card.innerHTML = `
+        <div class="entry-header">
+            <div class="entry-title">${entry.title}</div>
+            <div class="button-group">
+                <button class="btn btn-quick-copy" id="quick-copy-btn-${index}" onclick="quickCopy(${index}, 'quick-copy-btn-${index}')">
+                    ⚡ Copy
+                </button>
+                <button class="btn btn-show" id="show-btn-${index}" onclick="toggleDecoded(${index})">
+                    👁️ Show
+                </button>
+                <button class="btn btn-hide" id="hide-btn-${index}" onclick="toggleDecoded(${index})" style="display: none;">
+                    🙈 Hide
+                </button>
+            </div>
+        </div>
+        <div class="encoded-section">
+            <div class="section-label">🔒 Encoded</div>
+            <div class="encoded-text">${entry.encoded}</div>
+        </div>
+        <div class="decoded-section" id="decoded-section-${index}" style="display: none;">
+            <div class="decoded-content" id="decoded-content-${index}">
+                <div class="section-label">📝 Decoded</div>
+                <div class="decoded-text" id="decoded-text-${index}"></div>
+            </div>
+        </div>
+    `;
+    return card;
+}
+
+function initializeEntries() {
+    if (!entriesContainer) return;
+    entriesContainer.innerHTML = '';
+    DATABASE.forEach((entry, index) => {
+        entriesContainer.appendChild(createEntryCard(entry, index));
+    });
+    if (totalEntriesEl) totalEntriesEl.textContent = DATABASE.length;
+}
+
 // Event listeners
-secretWordInput.addEventListener('input', processText);
+secretWordInput.addEventListener('input', () => {
+    processText();
+    // Close all open decodings when secret word changes for security and correctness
+    document.querySelectorAll('.decoded-content').forEach(el => el.classList.remove('visible'));
+    document.querySelectorAll('.btn-show').forEach(el => el.style.display = 'inline-flex');
+    document.querySelectorAll('.btn-hide').forEach(el => el.style.display = 'none');
+});
 inputText.addEventListener('input', () => {
     processText();
     updateCharCount();
@@ -102,5 +207,7 @@ modeToggle.addEventListener('change', () => {
 });
 
 // Initialize
+DATABASE = typeof PASSWORDS_DATABASE !== 'undefined' ? PASSWORDS_DATABASE : [];
+initializeEntries();
 updateCharCount();
 updateModeLabel();

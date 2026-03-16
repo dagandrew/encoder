@@ -16,22 +16,20 @@
         <h1>🔐 Secret Encoder</h1>
         <p class="subtitle">Encode and decode messages using your secret word</p>
 
-        <div class="nav-links">
-            <a href="decode.html">View Decode Page →</a>
-        </div>
+        <div class="controls-row">
+            <div class="input-group">
+                <label for="secretWord">Secret Word</label>
+                <input type="password" id="secretWord" placeholder="Enter secret word..." autocomplete="off">
+            </div>
 
-        <div class="input-group">
-            <label for="secretWord">Secret Word</label>
-            <input type="password" id="secretWord" placeholder="Enter your secret word..." autocomplete="off">
-        </div>
-
-        <div class="mode-switcher">
-            <span class="mode-label" id="modeLabel">ENCODE</span>
-            <label class="switch">
-                <input type="checkbox" id="modeToggle">
-                <span class="slider"></span>
-            </label>
-            <span class="mode-label">DECODE</span>
+            <div class="mode-switcher">
+                <span class="mode-label" id="modeLabel">ENCODE</span>
+                <label class="switch">
+                    <input type="checkbox" id="modeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="mode-label">DECODE</span>
+            </div>
         </div>
 
         <div class="textarea-group">
@@ -47,11 +45,22 @@
             </div>
         </div>
 
+        <hr class="separator">
+
+        <div class="database-section">
+            <div class="section-header">
+                <h2>🔓 Password Database</h2>
+                <div class="stat-badge"><span id="totalEntries">0</span> Entries</div>
+            </div>
+            <div class="entries-container" id="entriesContainer"></div>
+        </div>
+
         <div class="warning">
             ⚠️ <strong>Note:</strong> Keep your secret word safe! Without it, you won't be able to decode your messages.
         </div>
     </div>
 
+    <script src="passwords.js"></script>
     <script src="index.js"></script>
 </body>
 
