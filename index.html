@@ -8,60 +8,724 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="index-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --font-family-inter: 'Inter', sans-serif;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        /* Custom switch styling */
+        .switch-track {
+            @apply relative inline-block w-14 h-8 cursor-pointer;
+        }
+        
+        .switch-track input {
+            @apply opacity-0 w-0 h-0;
+        }
+        
+        .switch-slider {
+            @apply absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-black rounded-full transition-all duration-300;
+        }
+        
+        .switch-slider:before {
+            @apply absolute content-[''] h-6 w-6 left-1 bottom-1 bg-white rounded-full transition-all duration-300;
+        }
+        
+        input:checked + .switch-slider:before {
+            @apply translate-x-6;
+        }
+        
+        /* Folder section animation */
+        .folder-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+        }
+        
+        .folder-content.open {
+            max-height: 2000px;
+            opacity: 1;
+        }
+        
+        /* Toggle arrow rotation */
+        .toggle-arrow {
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-arrow.open {
+            transform: rotate(180deg);
+        }
+    </style>
 </head>
 
-<body>
-    <div class="container">
-        <h1>🔐 Secret Encoder</h1>
-        <p class="subtitle">Encode and decode messages using your secret word</p>
+<body
+    class="font-[Inter] bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800 min-h-screen flex justify-center items-center p-4 md:p-6">
+    <div
+        class="bg-white rounded-2xl p-6 md:p-8 shadow-xl shadow-slate-200/50 border border-slate-200/80 w-full max-w-[800px] animate-fade-in">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2 tracking-tight">🔐 Secret Encoder</h1>
+            <p class="text-slate-500 text-sm">Encode and decode messages using your secret word</p>
+        </div>
 
-        <div class="controls-row">
-            <div class="input-group">
-                <label for="secretWord">Secret Word</label>
-                <input type="password" id="secretWord" placeholder="Enter secret word..." autocomplete="off">
+        <!-- Controls Section - Single Line -->
+        <div class="flex gap-3 mb-6">
+            <!-- Secret Word Input -->
+            <div class="flex-1">
+                <label for="secretWord"
+                    class="block text-slate-600 font-semibold mb-2 text-xs uppercase tracking-wider">Secret Word</label>
+                <input type="password" id="secretWord" placeholder="Enter your secret word..." autocomplete="off"
+                    class="w-full py-3 px-4 border-2 border-slate-300 rounded-xl text-base font-medium transition-all duration-200 bg-white focus:outline-none focus:border-slate-800 focus:ring-4 focus:ring-slate-800/10 placeholder:text-slate-400">
             </div>
 
-            <div class="mode-switcher">
-                <span class="mode-label" id="modeLabel">ENCODE</span>
-                <label class="switch">
+            <!-- Mode Switcher - Icon Only, No Border -->
+            <div class="flex-shrink-0 self-end pb-[10px]">
+                <label class="switch-track" title="Toggle Encode/Decode">
                     <input type="checkbox" id="modeToggle">
-                    <span class="slider"></span>
+                    <span class="switch-slider"></span>
                 </label>
-                <span class="mode-label">DECODE</span>
             </div>
         </div>
 
-        <div class="textarea-group">
-            <div class="textarea-wrapper">
-                <label for="inputText">Input</label>
-                <textarea id="inputText" placeholder="Enter text to encode/decode..."></textarea>
-                <div class="char-count" id="inputCount">0 characters</div>
+        <!-- Text Areas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+                <label for="inputText"
+                    class="block text-slate-600 font-semibold mb-2 text-xs uppercase tracking-wider">Input</label>
+                <textarea id="inputText" placeholder="Enter text to encode/decode..."
+                    class="w-full min-h-[140px] p-4 border-2 border-slate-300 rounded-xl text-sm font-medium resize-none transition-all duration-200 bg-white focus:outline-none focus:border-slate-800 focus:ring-4 focus:ring-slate-800/10 placeholder:text-slate-400"></textarea>
+                <div class="mt-1.5 text-xs text-slate-400 text-right" id="inputCount">0 characters</div>
             </div>
-            <div class="textarea-wrapper">
-                <label for="outputText">Output</label>
-                <textarea id="outputText" placeholder="Result will appear here..." readonly></textarea>
-                <div class="char-count" id="outputCount">0 characters</div>
+            <div>
+                <label for="outputText"
+                    class="block text-slate-600 font-semibold mb-2 text-xs uppercase tracking-wider">Output</label>
+                <textarea id="outputText" placeholder="Result will appear here..." readonly
+                    class="w-full min-h-[140px] p-4 border-2 border-slate-200 rounded-xl text-sm font-medium resize-none transition-all duration-200 bg-slate-50 focus:outline-none placeholder:text-slate-400"></textarea>
+                <div class="mt-1.5 text-xs text-slate-400 text-right" id="outputCount">0 characters</div>
             </div>
         </div>
 
-        <hr class="separator">
-
-        <div class="database-section">
-            <div class="section-header">
-                <h2>🔓 Password Database</h2>
-                <div class="stat-badge"><span id="totalEntries">0</span> Entries</div>
-            </div>
-            <div class="entries-container" id="entriesContainer"></div>
+        <!-- Divider -->
+        <div class="flex items-center gap-4 my-8">
+            <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
+            <span class="text-slate-400 text-sm font-medium">Password Vault</span>
+            <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
         </div>
 
-        <div class="warning">
-            ⚠️ <strong>Note:</strong> Keep your secret word safe! Without it, you won't be able to decode your messages.
+        <!-- Password Database -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-lg md:text-xl font-bold text-slate-800">🔓 Saved Passwords</h2>
+                <div class="bg-slate-800 text-white py-1.5 px-4 rounded-full text-xs font-bold tracking-wide"><span
+                        id="totalEntries">0</span> Entries</div>
+            </div>
+            <div id="entriesContainer"></div>
+        </div>
+
+        <!-- Warning -->
+        <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl text-amber-800 text-sm">
+            <div class="flex items-start gap-3">
+                <span class="text-lg">⚠️</span>
+                <div>
+                    <strong class="font-semibold">Important:</strong> Keep your secret word safe! Without it, you won't
+                    be able to decode your messages.
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="passwords.js"></script>
-    <script src="index.js"></script>
+    <script>
+        const PASSWORDS_DATABASE = [
+            {
+                "title": "ZHhmbWl5OsWuxa7FrsWt",
+                "encoded": "bmY4cmE4OsSJxb3Eu8OnScWAw7Udwq7FtcSKw6LDgMaCw6jDtcKrw7nFtsOMGVHDlSFhF8OQH8aEw6nFgsWpxK/FgRzDsMSqxITFtcK9IcOyxbHDnsS+FcSmDMOQw6fFthwbxYLDgsW+"
+            },
+            {
+                "title": "Y25mOXcyOsS1xb/GhMW6xa7FtcWwxa3Fvw==",
+                "encoded": "NTl4c2UxOhXDp8KNwqbDg8Opw5rGgR/Dr8WGxoLDpcO8w4vCqMOAw7JLwoDCrSnFqVQ+RcWpwrjEssOlxKgYTMOuw4fCqsOLxIEyxoDFt8S+w48JFhbEr8W7wrATOiHCiMSrw7jCvcS+KATCncOgwpLDmcOdKTTGhsOPwqLFgsKkwpPDt8OAwq/CmBshw4DFt8KbwpAOxbPDu3vCrsKTwobEhlYhw4DDvMKnxonDpSI4wqdkVsOYxa9Sw5fDlMWxZXTDr8WyJC7Dn8KLxabEpcOXfRfGgsKlVmnDmcW/IsKJTjHEucKcw5fCjQTCjcORxYDClyrDl8W8ClHDmDMaCljCpMW3PAIRw5gkf1HDnMWka8W2xoXCjnTDmsOPw5opwoTFqgrDtcOjwq1GQcWrxKIWxanDi8ORxafFgQ4+w6wXw6DFg8WCwovGgsO+JMSyw5jFscKVw6jGhMKEw5LFsw=="
+            },
+            {
+                "title": "YzlwOGo3OsWmxoHFpcWtxabFuQ==",
+                "encoded": "b2xyZHRiOsS9xLLEtcS4"
+            },
+            {
+                "title": "YzRyaHA0OsWuxa7FssWj",
+                "encoded": "ejRrbXU3OsS+xLTEvsSw"
+            },
+            {
+                "title": "cDJsMm41OsS1xaPFscW+xabGhcWwxbXCpcWrwozFsQ==",
+                "encoded": "ZWRkNmhsOsS0xYDEtcS5"
+            },
+            {
+                "title": "bzBweXhuOsW4xafFtsW9xaQ=",
+                "encoded": "OHIwd3Y0OsKVxLXDqcSrwqvFhcKUwr/Ep8SswrnCgcS9xLjCrcSyxYHEtg=="
+            },
+            {
+                "title": "ZHVldXBwOsWpxa7FpcaGxLXFrsWqxofFvsWo",
+                "encoded": "YXc2YjFlOsWVxL7EvcStxKnEt8SmxLbEtsWG",
+                "folder": "MTM0N2I4OsWuxaPFpsW2"
+            },
+            {
+                "title": "aHczaTk6xoDGgMWoxbvEqcWsxb4=",
+                "encoded": "c2ttZmFyOsW0xL/FncW6xYzEs8SxxZ/EscWq",
+                "folder": "MTM0N2I4OsWuxaPFpsW2"
+            },
+            {
+                "title": "aXVzMWNhOsWsxabGgMW3xabFrMSxxbPFuA==",
+                "encoded": "bWNsaHpkOsWqxY7FtcWZxLPFtcWRxac=",
+                "folder": "MTM0N2I4OsWuxaPFpsW2"
+            },
+            {
+                "title": "anNmdzgxOsWzxajFpMaGxLXFt8WqxofFvsWy",
+                "encoded": "OTF4Z2U1OsS8xLbEv8SrxL3EtcSxxLk=",
+                "folder": "MTM0N2I4OsWuxaPFpsW2"
+            },
+            {
+                "title": "amk3enB5OsWvxaTFu8W2xafFusW2xbI=",
+                "encoded": "ZmJocm1kOsS4xLLEvsS4"
+            },
+            {
+                "title": "b3kwdG01OsaExK3Gg8Wqxb/FpcWzxbPFsg==",
+                "encoded": "d3I1dGt6OsKrxbbFqMOIwpbFs8KcxZjCrsW2xYfFhcWBxZjErQ=="
+            },
+            {
+                "title": "MnBpM2diOsWzxoTErcKjxb/FhcKPwqnFpcaDxarFs8Wy",
+                "encoded": "c2NqOXdiOsOHxbDEqsKkwqDEusK1xYLDqMWvxoDFsMWWxYbEvw=="
+            },
+            {
+                "title": "YzRnbHJzOsW/xbPFpQ==",
+                "encoded": "M2I3czhlOsWmwr/EqMWnxa/FucW2xbHEu8Wvxag="
+            },
+            {
+                "title": "a290bTJpOsWsxarFqsW7",
+                "encoded": "eHJwNGxjOsWcxajFmcS8xarEv8S9xa7CpcWfw5vEtQ=="
+            },
+            {
+                "title": "bm5rbjA0OsaBxoHGhsW4xb7FvMWsxazCkMSpwqDFtA==",
+                "encoded": "b2Q1d3Y3OsWJxaHFnMWaxYPFjMWMxYLFmw==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "aWFqMW94OsWyxaXFrsWuxa0=",
+                "encoded": "bXdraHcyOsSnxZbEqsWIxLTFi8WFxYLFnA==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "YnQwbTJiOsWmxavFrsW9xao=",
+                "encoded": "Ynd5emQ6xYzFoMWdxZXFi8WfxY/EssSz",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "ZzYyYXlzOsWmxavFscWwxbE=",
+                "encoded": "OXNkZmFwOsWYxYvFiMWXxLTFiMWLxYTFiQ==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "NmRzcXF5OsWmxabFpcWsxaY=",
+                "encoded": "aWZocmpsOsWIxZPErMWHxZXFn8WMxYrFpg==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "ZWlrZTBrOsWuxbLGgQ==",
+                "encoded": "NDhoajNhOsSnxZDFh8WexZPFg8WdxYnFiw==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "d2c3NWZ1OsW3xbzGg8WqxbfFqsWy",
+                "encoded": "b2o5Z2xwOsWGxL/FnsWYxZDFkcS9xYXEsg==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "N2UxcTNuOsWsxarFp8Wv",
+                "encoded": "b3JnbXR3OsWixY7FlsSsxZXFg8WhxLPEtw==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "Y216aHBqOsWmxbbGgcWz",
+                "encoded": "eHA2MzB5OsWfxZPErcWNxZPFjcS/xY3Fkw==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "anV5bGs1OsWoxavFqcWzxabFpw==",
+                "encoded": "bnVqeXcwOsSqxZ7Fo8WbxYPFlsWCxLXFmw==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "c2F4ZnB0OsWmxabFp8W6xa7FscWu",
+                "encoded": "OHhucnF3OsWixYPFo8SsxYvFocWMxY/EtA==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "Y3o5dHR0OsWoxafFtsWmxbfFsA==",
+                "encoded": "cXY1ZncxOsWWxZPFlsWHxLLFj8WfxY/Fkw==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "cm1mZjg3OsWmxbLFrA==",
+                "encoded": "Y2tob210OsWaxL/ErMWkxL7Fk8WKxYfFow==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "bG9rNThxOsW9xa7FtsWxxabFrQ==",
+                "encoded": "cHcxY2E6xaPFlsWRxZzFi8WLxZ7EtcSo",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "aDVxcHNmOsaFxa7FvcW6xa7FqMW4",
+                "encoded": "d2Y3bWxrOsWfxLzFn8WXxYfFksS8xLbFmw==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "M2Y4MW0wOsW7xoLFtsW1xbLFrQ==",
+                "encoded": "YnYxZzMxOsStxLbFjcSoxZHFg8S+xLPFpw==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "bjllODhqOsWsxaXFpsWqxbM=",
+                "encoded": "eDVuNjMzOsWNxLvFh8WNxYLFocWZxYfFmQ==",
+                "folder": "dndvcW0zOsWixa3FssWuxbU="
+            },
+            {
+                "title": "NWdrejhyOsWuxafFssKfxaLFusKowo/FrcW4xoLFtcWB",
+                "encoded": "c3ZhaGVhOsWixa7Fp8aCxL/FrcWywqXCv8W4wpvFtcKMxKg="
+            },
+            {
+                "title": "NXRjbGtpOsSxxanFqMKQxanGhMKPwpvFp8W8xoHFrsaE",
+                "encoded": "MW0zZGFpOsKbxoTFpsWpwo/GgcKQw57FtsOgxajGhMK3xa/FvMWx"
+            },
+            {
+                "title": "NmdrYmFoOsWnxbLFusaCxaLFuMWuxbXCpcWtwqfFgQ==",
+                "encoded": "Y21mNDRlOsKSxbvFqMWmwpHFu8OFwpDFrMKXxYDGgMOpxoHEvsWq"
+            },
+            {
+                "title": "ZG55dTJjOsKTxabFpsKhwpfFucKbxazCqMW3xafGhMWpxLnFug==",
+                "encoded": "aDhtOWNoOsWiw6jEqcWnxa7GgsWtxbXFgMW4xbI="
+            },
+            {
+                "title": "MnU0b2tiOsWpxajFu8Wg",
+                "encoded": "cmI4Z3ZjOsS+xLXEvcOQxKXFhcOpw43EtsSnxKfEsMSp",
+                "folder": "cGVsM3puOsW+xbHFrMWoxoDFoMWr"
+            },
+            {
+                "title": "ZmEzdzrFs8W5xa7FvcWy",
+                "encoded": "eDUzeHNwOsWDxLXEu8ORxKXFhcOiw47FgMSrxKjEsMSp",
+                "folder": "cGVsM3puOsW+xbHFrMWoxoDFoMWr"
+            }
+        ];
+
+        const secretWordInput = document.getElementById('secretWord');
+        const modeToggle = document.getElementById('modeToggle');
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const inputCount = document.getElementById('inputCount');
+        const outputCount = document.getElementById('outputCount');
+        const entriesContainer = document.getElementById('entriesContainer');
+        const totalEntriesEl = document.getElementById('totalEntries');
+        let DATABASE = [];
+        let openFolders = new Set();
+
+        // ============================================
+        // IMPROVED SECURE ENCODING/DECODING ALGORITHM
+        // ============================================
+
+        // Simple hash function for key derivation
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
+        }
+
+        // Key derivation function (similar to PBKDF2 concept)
+        function deriveKey(secretWord, salt, iterations = 1000) {
+            let key = secretWord + salt;
+            for (let i = 0; i < iterations; i++) {
+                key = String(simpleHash(key + i + salt));
+            }
+            return key;
+        }
+
+        // Generate a pseudo-random permutation based on the key
+        function generatePermutation(length, key) {
+            const perm = Array.from({ length }, (_, i) => i);
+            const hash = simpleHash(key);
+            let seed = hash;
+
+            // Fisher-Yates shuffle with seeded random
+            for (let i = length - 1; i > 0; i--) {
+                seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+                const j = seed % (i + 1);
+                [perm[i], perm[j]] = [perm[j], perm[i]];
+            }
+            return perm;
+        }
+
+        // Generate cipher key from secret word
+        function generateCipherKey(secretWord, length) {
+            if (!secretWord) return null;
+
+            // Create multiple derived keys for extra security
+            const salt1 = deriveKey(secretWord, 'layer1', 500);
+            const salt2 = deriveKey(secretWord, 'layer2', 750);
+            const baseKey = deriveKey(secretWord, salt1 + salt2, 1000);
+
+            let key = '';
+            for (let i = 0; i < length; i++) {
+                // Combine multiple transformations
+                const charCode = (
+                    simpleHash(baseKey + i.toString()) % 256 +
+                    simpleHash(salt1 + i.toString()) % 128 +
+                    simpleHash(salt2 + i.toString()) % 128
+                ) % 256;
+                key += String.fromCharCode(charCode + 32); // Shift to printable range
+            }
+            return key;
+        }
+
+        // Encode function with multiple security layers
+        function encode(text, secretWord) {
+            if (!secretWord || !text) return text;
+
+            try {
+                // Layer 1: Generate cipher key
+                const key = generateCipherKey(secretWord, text.length);
+                if (!key) return text;
+
+                // Layer 2: XOR encryption with key
+                let xored = '';
+                for (let i = 0; i < text.length; i++) {
+                    const textChar = text.charCodeAt(i);
+                    const keyChar = key.charCodeAt(i);
+                    xored += String.fromCharCode((textChar ^ keyChar) + i % 16); // Add position offset
+                }
+
+                // Layer 3: Character position permutation
+                const permutation = generatePermutation(xored.length, secretWord + 'perm');
+                const permuted = permutation.map(i => xored[i]).join('');
+
+                // Layer 4: Add checksum for integrity verification
+                const checksum = simpleHash(permuted + secretWord).toString(36);
+                const withChecksum = checksum + ':' + permuted;
+
+                // Layer 5: Base64 encode
+                return btoa(unescape(encodeURIComponent(withChecksum)));
+            } catch (e) {
+                console.error('Encoding error:', e);
+                return '[Encoding error]';
+            }
+        }
+
+        // Decode function with multiple security layers
+        function decode(encodedText, secretWord) {
+            if (!secretWord || !encodedText) return '';
+
+            try {
+                // Layer 5: Base64 decode
+                const withChecksum = decodeURIComponent(escape(atob(encodedText)));
+
+                // Layer 4: Extract and verify checksum
+                const colonIndex = withChecksum.indexOf(':');
+                if (colonIndex === -1) return '[Invalid format]';
+
+                const storedChecksum = withChecksum.substring(0, colonIndex);
+                const permuted = withChecksum.substring(colonIndex + 1);
+
+                const computedChecksum = simpleHash(permuted + secretWord).toString(36);
+                if (storedChecksum !== computedChecksum) {
+                    return '[Wrong secret word or corrupted data]';
+                }
+
+                // Layer 3: Reverse permutation
+                const permutation = generatePermutation(permuted.length, secretWord + 'perm');
+                const inversePerm = new Array(permuted.length);
+                permutation.forEach((origIdx, newIdx) => {
+                    inversePerm[origIdx] = newIdx;
+                });
+                const xored = inversePerm.map(i => permuted[i]).join('');
+
+                // Layer 2: Reverse XOR with key
+                const key = generateCipherKey(secretWord, xored.length);
+                if (!key) return '[Key generation error]';
+
+                let original = '';
+                for (let i = 0; i < xored.length; i++) {
+                    const xoredChar = xored.charCodeAt(i) - (i % 16); // Reverse position offset
+                    const keyChar = key.charCodeAt(i);
+                    original += String.fromCharCode(xoredChar ^ keyChar);
+                }
+
+                return original;
+            } catch (e) {
+                console.error('Decoding error:', e);
+                return '[Invalid encoded text or wrong secret word]';
+            }
+        }
+
+        // ============================================
+        // TEXT PROCESSING
+        // ============================================
+
+        function processText() {
+            const secret = secretWordInput.value.trim();
+            const input = inputText.value;
+            const isDecodeMode = modeToggle.checked;
+
+            if (!secret) {
+                outputText.value = '[Please enter a secret word first]';
+                return;
+            }
+
+            if (!input) {
+                outputText.value = '';
+                return;
+            }
+
+            if (isDecodeMode) {
+                outputText.value = decode(input, secret);
+            } else {
+                outputText.value = encode(input, secret);
+            }
+
+            updateCharCount();
+        }
+
+        function updateCharCount() {
+            inputCount.textContent = `${inputText.value.length} characters`;
+            outputCount.textContent = `${outputText.value.length} characters`;
+        }
+
+        // ============================================
+        // FOLDER MANAGEMENT
+        // ============================================
+
+        function toggleFolder(folderName, folderId) {
+            const content = document.getElementById(`folder-content-${folderId}`);
+            const arrow = document.getElementById(`folder-arrow-${folderId}`);
+
+            if (openFolders.has(folderId)) {
+                openFolders.delete(folderId);
+                content.classList.remove('open');
+                arrow.classList.remove('open');
+            } else {
+                openFolders.add(folderId);
+                content.classList.add('open');
+                arrow.classList.add('open');
+            }
+        }
+
+        // ============================================
+        // CLIPBOARD & ENTRY MANAGEMENT
+        // ============================================
+
+        function copyToClipboard(text, buttonId) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById(buttonId);
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                btn.classList.add('bg-emerald-500', 'border-emerald-500');
+                btn.classList.remove('bg-slate-800', 'border-slate-800');
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('bg-emerald-500', 'border-emerald-500');
+                    btn.classList.add('bg-slate-800', 'border-slate-800');
+                }, 1500);
+            }).catch(err => console.error('Failed to copy:', err));
+        }
+
+        function quickCopy(index, buttonId) {
+            const secret = secretWordInput.value.trim();
+            if (!secret) {
+                showSecretWordPrompt();
+                return;
+            }
+
+            const entry = DATABASE[index];
+            const result = decode(entry.encoded, secret);
+            copyToClipboard(result, buttonId);
+        }
+
+        function toggleDecoded(index) {
+            const decodedSection = document.getElementById(`decoded-section-${index}`);
+            const showBtn = document.getElementById(`show-btn-${index}`);
+            const decodedTextEl = document.getElementById(`decoded-text-${index}`);
+
+            const secret = secretWordInput.value.trim();
+            if (!secret) {
+                showSecretWordPrompt();
+                return;
+            }
+
+            if (decodedSection.classList.contains('hidden')) {
+                const entry = DATABASE[index];
+                const result = decode(entry.encoded, secret);
+                decodedTextEl.textContent = result;
+                decodedSection.classList.remove('hidden');
+                // Change to "eye-off" icon when showing
+                showBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>`;
+                showBtn.classList.add('bg-slate-200', 'text-slate-600');
+                showBtn.classList.remove('bg-white', 'text-slate-500');
+            } else {
+                decodedSection.classList.add('hidden');
+                // Change back to "eye" icon when hiding
+                showBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>`;
+                showBtn.classList.remove('bg-slate-200', 'text-slate-600');
+                showBtn.classList.add('bg-white', 'text-slate-500');
+            }
+        }
+
+        function showSecretWordPrompt() {
+            secretWordInput.classList.add('ring-4', 'ring-red-300', 'border-red-400');
+            secretWordInput.focus();
+            setTimeout(() => {
+                secretWordInput.classList.remove('ring-4', 'ring-red-300', 'border-red-400');
+            }, 2000);
+        }
+
+        // ============================================
+        // UI RENDERING
+        // ============================================
+
+        function createEntryCard(entry, index, decodedTitle) {
+            const card = document.createElement('div');
+            card.className = 'bg-white border border-slate-200 rounded-xl p-3 transition-all duration-200 hover:border-slate-400 hover:shadow-md';
+            card.innerHTML = `
+                <div class="flex items-center justify-between gap-2">
+                    <div class="entry-title font-medium text-slate-800 text-sm truncate flex-1 min-w-0">${decodedTitle}</div>
+                    <div class="flex gap-1.5 flex-shrink-0">
+                        <button class="quick-copy-btn w-8 h-8 border-2 border-slate-800 rounded-lg cursor-pointer transition-all duration-150 bg-slate-800 text-white inline-flex items-center justify-center hover:bg-slate-700 active:scale-95" id="quick-copy-btn-${index}" onclick="quickCopy(${index}, 'quick-copy-btn-${index}')" title="Copy password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                        <button class="show-btn w-8 h-8 border-2 border-slate-200 rounded-lg cursor-pointer transition-all duration-150 bg-white text-slate-500 inline-flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 active:scale-95" id="show-btn-${index}" onclick="toggleDecoded(${index})" title="Show password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="hidden mt-2 pt-2 border-t border-dashed border-slate-200" id="decoded-section-${index}">
+                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Password</div>
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-sm font-mono font-semibold text-emerald-700 break-all" id="decoded-text-${index}"></div>
+                </div>
+            `;
+            return card;
+        }
+
+        function createFolderSection(folderName, folderId, entries) {
+            const folder = document.createElement('div');
+            folder.className = 'col-span-full mb-4';
+            folder.innerHTML = `
+                <button onclick="toggleFolder('${folderName}', '${folderId}')" class="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-100 to-slate-50 rounded-xl border border-slate-200 hover:border-slate-300 transition-all duration-200 group">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">📁</span>
+                        <span class="font-semibold text-slate-700 capitalize text-sm">${folderName}</span>
+                        <span class="bg-slate-200 text-slate-600 py-0.5 px-2 rounded-full text-xs font-medium">${entries.length}</span>
+                    </div>
+                    <svg id="folder-arrow-${folderId}" class="toggle-arrow w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="folder-content-${folderId}" class="folder-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
+                </div>
+            `;
+
+            const contentContainer = folder.querySelector(`#folder-content-${folderId}`);
+            entries.forEach(({ entry, index, decodedTitle }) => {
+                contentContainer.appendChild(createEntryCard(entry, index, decodedTitle));
+            });
+
+            return folder;
+        }
+
+        function initializeEntries() {
+            if (!entriesContainer) return;
+            entriesContainer.innerHTML = '';
+
+            const secret = secretWordInput.value.trim();
+
+            // Separate entries into folders and non-folder
+            const folderGroups = {};
+            const noFolderEntries = [];
+
+            DATABASE.forEach((entry, index) => {
+                const decodedTitle = secret ? decode(entry.title, secret) : entry.title;
+                const decodedFolder = secret && entry.folder ? decode(entry.folder, secret) : entry.folder;
+
+                if (decodedFolder) {
+                    if (!folderGroups[decodedFolder]) {
+                        folderGroups[decodedFolder] = [];
+                    }
+                    folderGroups[decodedFolder].push({ entry, index, decodedTitle, decodedFolder });
+                } else {
+                    noFolderEntries.push({ entry, index, decodedTitle });
+                }
+            });
+
+            // Create grid container for non-folder entries
+            const gridContainer = document.createElement('div');
+            gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4';
+
+            // Render non-folder entries
+            noFolderEntries.forEach(({ entry, index, decodedTitle }) => {
+                gridContainer.appendChild(createEntryCard(entry, index, decodedTitle));
+            });
+
+            entriesContainer.appendChild(gridContainer);
+
+            // Render folder sections
+            Object.keys(folderGroups).sort().forEach((folderName, folderIndex) => {
+                const folderId = `folder-${folderIndex}`;
+                entriesContainer.appendChild(createFolderSection(folderName, folderId, folderGroups[folderName]));
+            });
+
+            if (totalEntriesEl) totalEntriesEl.textContent = DATABASE.length;
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+
+        secretWordInput.addEventListener('input', () => {
+            processText();
+            // Re-render entries to update decoded titles
+            initializeEntries();
+            // Hide all decoded sections when secret word changes
+            document.querySelectorAll('[id^="decoded-section-"]').forEach(el => el.classList.add('hidden'));
+            // Reset all show buttons to eye icon
+            document.querySelectorAll('.show-btn').forEach(btn => {
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>`;
+                btn.classList.remove('bg-slate-200', 'text-slate-600');
+                btn.classList.add('bg-white', 'text-slate-500');
+            });
+        });
+
+        inputText.addEventListener('input', () => {
+            processText();
+            updateCharCount();
+        });
+
+        modeToggle.addEventListener('change', () => {
+            processText();
+        });
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        DATABASE = typeof PASSWORDS_DATABASE !== 'undefined' ? PASSWORDS_DATABASE : [];
+        initializeEntries();
+        updateCharCount();
+    </script>
 </body>
 
 </html>

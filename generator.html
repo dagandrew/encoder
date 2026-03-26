@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Database Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --font-family-inter: 'Inter', sans-serif;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+
+<body
+    class="font-[Inter] bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800 min-h-screen flex justify-center items-center p-4 md:p-6">
+    <div
+        class="bg-white rounded-2xl p-6 md:p-8 shadow-xl shadow-slate-200/50 border border-slate-200/80 w-full max-w-[900px] animate-fade-in">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2 tracking-tight">🔐 Password Database
+                Generator</h1>
+            <p class="text-slate-500 text-sm">Generate your PASSWORDS_DATABASE array for the encoder</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex gap-3 mb-6">
+            <div class="flex-1">
+                <label for="secretWord"
+                    class="block text-slate-600 font-semibold mb-2 text-xs uppercase tracking-wider">Secret Word</label>
+                <input type="password" id="secretWord" placeholder="Enter your secret word..." autocomplete="off"
+                    class="w-full py-3 px-4 border-2 border-slate-300 rounded-xl text-base font-medium transition-all duration-200 bg-white focus:outline-none focus:border-slate-800 focus:ring-4 focus:ring-slate-800/10 placeholder:text-slate-400">
+            </div>
+            <div class="flex-shrink-0 self-end">
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="showSecret" class="sr-only peer">
+                    <div
+                        class="w-10 h-6 bg-slate-300 rounded-full peer peer-checked:bg-slate-800 transition-colors relative before:content-[''] before:absolute before:left-1 before:top-1 before:w-4 before:h-4 before:bg-white before:rounded-full before:transition-transform peer-checked:before:translate-x-4">
+                    </div>
+                    <span class="text-sm text-slate-600">Show</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Input Format Guide -->
+        <div class="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-200">
+            <h3 class="font-semibold text-slate-700 text-sm mb-2">📋 Format Guide</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-600">
+                <div>
+                    <p class="font-medium text-slate-700 mb-1">Passwords without folder:</p>
+                    <pre class="bg-white p-2 rounded-lg border border-slate-200 overflow-x-auto">password_name: actual_password
+another_one: its_password</pre>
+                </div>
+                <div>
+                    <p class="font-medium text-slate-700 mb-1">Passwords in folders:</p>
+                    <pre class="bg-white p-2 rounded-lg border border-slate-200 overflow-x-auto">wifi
+ilkal wifi: password123
+home wifi: pass456
+
+telegram
+my telegram: secretpass</pre>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-3">💡 Separate groups with an <strong>empty line</strong>. First line of
+                each group = folder name (if it doesn't contain ":"). Use <strong>name: password</strong> format for
+                entries. <strong>Titles and folders are also encoded!</strong></p>
+        </div>
+
+        <!-- Main Textareas -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <div>
+                <label for="inputText"
+                    class="block text-slate-600 font-semibold mb-2 text-xs uppercase tracking-wider">Input (Names &
+                    Passwords)</label>
+                <textarea id="inputText" placeholder="wifi
+my wifi: password123
+home wifi: pass456
+
+telegram
+personal: secret123
+work: workpass" class="w-full min-h-[300px] p-4 border-2 border-slate-300 rounded-xl text-sm font-mono resize-y transition-all duration-200 bg-white focus:outline-none focus:border-slate-800 focus:ring-4 focus:ring-slate-800/10 placeholder:text-slate-400 placeholder:font-[Inter]"></textarea>
+                <div class="mt-1.5 text-xs text-slate-400" id="entryCount">0 entries detected</div>
+            </div>
+            <div>
+                <label for="outputText"
+                    class="block text-slate-600 font-semibold mb-2 text-xs uppercase tracking-wider">Generated
+                    PASSWORDS_DATABASE</label>
+                <textarea id="outputText" placeholder="Output will appear here..." readonly
+                    class="w-full min-h-[300px] p-4 border-2 border-slate-200 rounded-xl text-sm font-mono resize-y transition-all duration-200 bg-slate-50 focus:outline-none text-slate-600"></textarea>
+                <div class="mt-1.5 flex justify-between items-center">
+                    <span class="text-xs text-slate-400" id="outputCount">0 entries</span>
+                    <button id="copyBtn" onclick="copyOutput()"
+                        class="text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button onclick="generateDatabase()"
+            class="w-full py-3 px-6 bg-slate-800 text-white font-semibold rounded-xl hover:bg-slate-700 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                </path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Generate Database
+        </button>
+
+        <!-- Preview Section -->
+        <div class="mt-6 pt-6 border-t border-slate-200">
+            <h3 class="font-semibold text-slate-700 text-sm mb-3">👁️ Preview</h3>
+            <div id="preview"
+                class="bg-slate-50 rounded-xl p-4 border border-slate-200 min-h-[100px] text-sm text-slate-600">
+                <p class="text-slate-400 italic">Generated entries will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const secretWordInput = document.getElementById('secretWord');
+        const showSecretCheckbox = document.getElementById('showSecret');
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const entryCountEl = document.getElementById('entryCount');
+        const outputCountEl = document.getElementById('outputCount');
+        const previewEl = document.getElementById('preview');
+
+        // ============================================
+        // SECURE ENCODING ALGORITHM (same as encoder)
+        // ============================================
+
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash);
+        }
+
+        function deriveKey(secretWord, salt, iterations = 1000) {
+            let key = secretWord + salt;
+            for (let i = 0; i < iterations; i++) {
+                key = String(simpleHash(key + i + salt));
+            }
+            return key;
+        }
+
+        function generatePermutation(length, key) {
+            const perm = Array.from({ length }, (_, i) => i);
+            const hash = simpleHash(key);
+            let seed = hash;
+
+            for (let i = length - 1; i > 0; i--) {
+                seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+                const j = seed % (i + 1);
+                [perm[i], perm[j]] = [perm[j], perm[i]];
+            }
+            return perm;
+        }
+
+        function generateCipherKey(secretWord, length) {
+            if (!secretWord) return null;
+
+            const salt1 = deriveKey(secretWord, 'layer1', 500);
+            const salt2 = deriveKey(secretWord, 'layer2', 750);
+            const baseKey = deriveKey(secretWord, salt1 + salt2, 1000);
+
+            let key = '';
+            for (let i = 0; i < length; i++) {
+                const charCode = (
+                    simpleHash(baseKey + i.toString()) % 256 +
+                    simpleHash(salt1 + i.toString()) % 128 +
+                    simpleHash(salt2 + i.toString()) % 128
+                ) % 256;
+                key += String.fromCharCode(charCode + 32);
+            }
+            return key;
+        }
+
+        function encode(text, secretWord) {
+            if (!secretWord || !text) return text;
+
+            try {
+                const key = generateCipherKey(secretWord, text.length);
+                if (!key) return text;
+
+                let xored = '';
+                for (let i = 0; i < text.length; i++) {
+                    const textChar = text.charCodeAt(i);
+                    const keyChar = key.charCodeAt(i);
+                    xored += String.fromCharCode((textChar ^ keyChar) + i % 16);
+                }
+
+                const permutation = generatePermutation(xored.length, secretWord + 'perm');
+                const permuted = permutation.map(i => xored[i]).join('');
+
+                const checksum = simpleHash(permuted + secretWord).toString(36);
+                const withChecksum = checksum + ':' + permuted;
+
+                return btoa(unescape(encodeURIComponent(withChecksum)));
+            } catch (e) {
+                console.error('Encoding error:', e);
+                return '[Encoding error]';
+            }
+        }
+
+        // ============================================
+        // PARSING & GENERATION
+        // ============================================
+
+        function parseInput(text) {
+            const lines = text.split('\n');
+            const entries = [];
+            let currentFolder = null;
+            let tempEntries = [];
+
+            for (let line of lines) {
+                line = line.trim();
+
+                // Empty line = end of current group
+                if (line === '') {
+                    if (tempEntries.length > 0) {
+                        entries.push(...tempEntries);
+                        tempEntries = [];
+                    }
+                    currentFolder = null;
+                    continue;
+                }
+
+                // Check if this is a folder name (doesn't contain ":")
+                if (!line.includes(':')) {
+                    // Save previous entries if any
+                    if (tempEntries.length > 0) {
+                        entries.push(...tempEntries);
+                        tempEntries = [];
+                    }
+                    currentFolder = line;
+                    continue;
+                }
+
+                // Parse entry: "name: password"
+                const colonIndex = line.indexOf(':');
+                const name = line.substring(0, colonIndex).trim();
+                const password = line.substring(colonIndex + 1).trim();
+
+                if (name && password) {
+                    const entry = { title: name, password: password };
+                    if (currentFolder) {
+                        entry.folder = currentFolder;
+                    }
+                    tempEntries.push(entry);
+                }
+            }
+
+            // Don't forget remaining entries
+            if (tempEntries.length > 0) {
+                entries.push(...tempEntries);
+            }
+
+            return entries;
+        }
+
+        function generateDatabase() {
+            const secret = secretWordInput.value.trim();
+            const input = inputText.value;
+
+            if (!secret) {
+                alert('Please enter a secret word first!');
+                secretWordInput.focus();
+                return;
+            }
+
+            if (!input.trim()) {
+                alert('Please enter some passwords to encode!');
+                return;
+            }
+
+            const entries = parseInput(input);
+
+            if (entries.length === 0) {
+                alert('No valid entries found. Make sure to use "name: password" format.');
+                return;
+            }
+
+            // Track unique folders and encode them
+            const folderMap = new Map();
+
+            // Generate the database with ENCODED titles and folders
+            const database = entries.map(entry => {
+                // Encode the title
+                const encodedTitle = encode(entry.title, secret);
+
+                // Encode the password
+                const encodedPassword = encode(entry.password, secret);
+
+                const dbEntry = {
+                    title: encodedTitle,
+                    encoded: encodedPassword
+                };
+
+                // Encode folder if exists
+                if (entry.folder) {
+                    dbEntry.folder = encode(entry.folder, secret);
+                }
+                return dbEntry;
+            });
+
+            // Format as JavaScript
+            let jsOutput = 'const PASSWORDS_DATABASE = [\n';
+            database.forEach((entry, index) => {
+                jsOutput += '    {\n';
+                jsOutput += `        "title": "${entry.title}",\n`;
+                jsOutput += `        "encoded": "${entry.encoded}"`;
+                if (entry.folder) {
+                    jsOutput += `,\n        "folder": "${entry.folder}"`;
+                }
+                jsOutput += '\n    }';
+                if (index < database.length - 1) {
+                    jsOutput += ',';
+                }
+                jsOutput += '\n';
+            });
+            jsOutput += '];';
+
+            outputText.value = jsOutput;
+            outputCountEl.textContent = `${database.length} entries`;
+
+            // Generate preview (show decoded values since we know the secret)
+            generatePreview(entries, database);
+        }
+
+        function generatePreview(originalEntries, encodedDatabase) {
+            const folders = {};
+            const noFolder = [];
+
+            originalEntries.forEach((entry, index) => {
+                const encodedEntry = encodedDatabase[index];
+                if (entry.folder) {
+                    if (!folders[entry.folder]) {
+                        folders[entry.folder] = [];
+                    }
+                    folders[entry.folder].push({
+                        original: entry,
+                        encoded: encodedEntry
+                    });
+                } else {
+                    noFolder.push({
+                        original: entry,
+                        encoded: encodedEntry
+                    });
+                }
+            });
+
+            let html = '';
+
+            if (noFolder.length > 0) {
+                html += '<div class="mb-4">';
+                noFolder.forEach(({ original, encoded }) => {
+                    html += `<div class="py-2 px-3 bg-white rounded-lg border border-slate-200 mb-2">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="font-medium text-slate-700 text-sm">${escapeHtml(original.title)}</span>
+                            <span class="text-xs text-emerald-600 font-semibold">✓ Encoded</span>
+                        </div>
+                        <div class="text-xs text-slate-400 font-mono truncate">title: ${encoded.title.substring(0, 25)}...</div>
+                        <div class="text-xs text-slate-400 font-mono truncate">password: ${encoded.encoded.substring(0, 25)}...</div>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            Object.keys(folders).sort().forEach(folderName => {
+                html += `<div class="mb-4">
+                    <div class="flex items-center gap-2 mb-2 py-1.5 px-2 bg-slate-100 rounded-lg">
+                        <span>📁</span>
+                        <span class="font-semibold text-slate-700 capitalize">${escapeHtml(folderName)}</span>
+                        <span class="bg-slate-200 text-slate-600 py-0.5 px-2 rounded-full text-xs">${folders[folderName].length}</span>
+                        <span class="text-xs text-emerald-600 font-semibold ml-auto">✓ Encoded</span>
+                    </div>
+                    <div class="pl-3">`;
+                folders[folderName].forEach(({ original, encoded }) => {
+                    html += `<div class="py-2 px-3 bg-white rounded-lg border border-slate-200 mb-2">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="font-medium text-slate-700 text-sm">${escapeHtml(original.title)}</span>
+                            <span class="text-xs text-emerald-600 font-semibold">✓ Encoded</span>
+                        </div>
+                        <div class="text-xs text-slate-400 font-mono truncate">title: ${encoded.title.substring(0, 25)}...</div>
+                        <div class="text-xs text-slate-400 font-mono truncate">password: ${encoded.encoded.substring(0, 25)}...</div>
+                    </div>`;
+                });
+                html += '</div></div>';
+            });
+
+            previewEl.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyOutput() {
+            const output = outputText.value;
+            if (!output) {
+                alert('Nothing to copy! Generate the database first.');
+                return;
+            }
+
+            navigator.clipboard.writeText(output).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!`;
+                btn.classList.add('text-emerald-600');
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('text-emerald-600');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        // Update entry count on input
+        inputText.addEventListener('input', () => {
+            const entries = parseInput(inputText.value);
+            entryCountEl.textContent = `${entries.length} entries detected`;
+        });
+
+        // Toggle password visibility
+        showSecretCheckbox.addEventListener('change', () => {
+            secretWordInput.type = showSecretCheckbox.checked ? 'text' : 'password';
+        });
+    </script>
+</body>
+
+</html>
